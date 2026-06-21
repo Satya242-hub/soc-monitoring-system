@@ -7,9 +7,7 @@ API_URL = "https://soc-monitoring-system.onrender.com"
 st.set_page_config(page_title="SOC Dashboard", layout="wide")
 st.title("🛡️ SOC Monitoring Dashboard")
 
-# =========================
 # FETCH DATA
-# =========================
 def get_logs():
     try:
         return requests.get(f"{API_URL}/logs", timeout=3).json()
@@ -34,9 +32,7 @@ def close_alert(alert_id):
     except:
         pass
 
-# =========================
 # STATS SECTION
-# =========================
 stats = get_stats()
 
 if not stats:
@@ -51,9 +47,7 @@ col4.metric("Closed Alerts", stats.get("closed_alerts", 0))
 
 st.divider()
 
-# =========================
 # ALERTS SECTION
-# =========================
 st.subheader("🚨 Active Alerts")
 
 alerts = get_alerts()
@@ -73,9 +67,7 @@ else:
 
 st.divider()
 
-# =========================
 # LOGS SECTION
-# =========================
 st.subheader("📄 Recent Logs")
 
 logs = get_logs()
@@ -88,8 +80,6 @@ else:
 
 st.divider()
 
-# =========================
 # REFRESH BUTTON
-# =========================
 if st.button("🔄 Refresh Dashboard"):
     st.rerun()
