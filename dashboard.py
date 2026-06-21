@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 
-API_URL = https://soc-monitoring-system.onrender.com
+API_URL = "https://soc-monitoring-system.onrender.com"
 
 st.set_page_config(page_title="SOC Dashboard", layout="wide")
 st.title("🛡️ SOC Monitoring Dashboard")
