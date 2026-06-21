@@ -10,9 +10,7 @@ Base.metadata.create_all(bind=engine)
  
 app = FastAPI(title="SOC Monitoring System")
  
-# ==========================
 # MEMORY STORAGE
-# ==========================
 alerts = []
 failed_logins = defaultdict(list)
 ip_activity = defaultdict(list)
@@ -21,9 +19,7 @@ alert_counter = 1
 active_alerts = set()
  
  
-# ==========================
 # DB SESSION
-# ==========================
 def get_db():
     db = SessionLocal()
     try:
@@ -32,17 +28,13 @@ def get_db():
         db.close()
  
  
-# ==========================
 # ROOT
-# ==========================
 @app.get("/")
 def root():
     return {"status": "running", "system": "SOC Monitoring System"}
  
  
-# ==========================
 # LOG INGESTION
-# ==========================
 @app.post("/logs")
 def create_log(log: dict, db: Session = Depends(get_db)):
  
@@ -64,9 +56,7 @@ def create_log(log: dict, db: Session = Depends(get_db)):
  
     ip_activity[ip].append(current_time)
  
-    # ==========================
     # BRUTE FORCE DETECTION
-    # ==========================
     if "failed" in event:
         failed_logins[ip].append(current_time)
         if len(failed_logins[ip]) >= 5:
@@ -85,9 +75,7 @@ def create_log(log: dict, db: Session = Depends(get_db)):
                 alert_counter += 1
             failed_logins[ip] = []
  
-    # ==========================
     # MALWARE DETECTION
-    # ==========================
     if "malware" in event:
         key = f"malware_{ip}"
         if key not in active_alerts:
@@ -103,9 +91,7 @@ def create_log(log: dict, db: Session = Depends(get_db)):
             active_alerts.add(key)
             alert_counter += 1
  
-    # ==========================
     # PORT SCAN DETECTION
-    # ==========================
     ip_activity[ip] = [
         t for t in ip_activity[ip]
         if (current_time - t).seconds <= 10
@@ -129,32 +115,26 @@ def create_log(log: dict, db: Session = Depends(get_db)):
     return {"message": "log stored", "id": new_log.id}
  
  
-# ==========================
 # GET LOGS
-# ==========================
 @app.get("/logs")
 def get_logs(db: Session = Depends(get_db)):
     return db.query(Log).all()
  
  
-# ==========================
 # GET ALERTS
-# ==========================
 @app.get("/alerts")
 def get_alerts():
     return alerts
  
  
-# ==========================
-# CLOSE ALERT ✅ FIXED
-# ==========================
+# CLOSE ALERT 
 @app.put("/alerts/{alert_id}/close")
 def close_alert(alert_id: int):
     for alert in alerts:
         if alert["alert_id"] == alert_id:
             alert["status"] = "CLOSED"
  
-            # ✅ match exact keys used during alert creation
+            #  match exact keys used during alert creation
             ip = alert["source_ip"]
             type_map = {
                 "Brute Force Attack": f"bruteforce_{ip}",
@@ -169,9 +149,7 @@ def close_alert(alert_id: int):
     return {"message": "Alert not found"}
  
  
-# ==========================
 # DASHBOARD STATS
-# ==========================
 @app.get("/dashboard/stats")
 def dashboard_stats(db: Session = Depends(get_db)):
     total_logs = db.query(Log).count()
